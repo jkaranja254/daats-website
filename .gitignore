@@ -1,0 +1,7 @@
+.playwright-cli/
+.superpowers/
+.vercel/
+node_modules/
+output/
+AGENT_ENVIRONMENT_NOTES.md
+SESSION_HANDOFF.md
