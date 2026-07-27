@@ -26,12 +26,14 @@ describe("static site contract", () => {
     }
   });
 
-  it("links Careers directly to the external driver application in a new tab", () => {
+  it("labels the driver application link as Apply and opens it in a new tab", () => {
     const html = read("index.html");
     assert.match(
       html,
       /href="https:\/\/intelliapp\.driverapponline\.com\/c\/daatsco\?uri_b=ia_daatsco_596246394"[^>]*target="_blank"/,
     );
+    assert.match(html, />Apply<\/a>/);
+    assert.doesNotMatch(html, />Careers<\/a>/);
     assert.equal(existsSync(join(root, "careers.html")), false);
   });
 
