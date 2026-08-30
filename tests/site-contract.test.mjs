@@ -192,13 +192,13 @@ describe("static site contract", () => {
 
     assert.match(html, /<section class="section diesel-section" id="diesel-prices">/);
     assert.match(html, /<h2>Weekly diesel prices<\/h2>/);
-    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: July 7, 2026 \| Next Release Date: July 14, 2026<\/p><\/div>/);
+    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: August 25, 2026 \| Next Release Date: September 1, 2026<\/p><\/div>/);
     assert.doesNotMatch(html, /EIA weekly benchmark snapshot/);
     assert.doesNotMatch(html, /U\.S\. On-Highway Diesel Fuel Prices\*\s*\(dollars per gallon\)/);
     assert.doesNotMatch(html, /diesel-release-badges/);
-    assert.match(html, /<th>Region<\/th><th>06\/22\/26<\/th><th>06\/29\/26<\/th><th>07\/06\/26<\/th><th>Week Ago<\/th><th>Year Ago<\/th>/);
-    assert.match(html, /<tr class="diesel-row-highlight"><th scope="row">U\.S\.<\/th><td>4\.832<\/td><td>4\.668<\/td><td>4\.578<\/td><td>-0\.090<\/td><td>0\.839<\/td><\/tr>/);
-    assert.match(html, /<tr class=""><th scope="row">Gulf Coast \(PADD3\)<\/th><td>4\.415<\/td><td>4\.283<\/td><td>4\.225<\/td><td>-0\.058<\/td><td>0\.842<\/td><\/tr>/);
+    assert.match(html, /<th>Region<\/th><th>08\/10\/26<\/th><th>08\/17\/26<\/th><th>08\/24\/26<\/th><th>Week Ago<\/th><th>Year Ago<\/th>/);
+    assert.match(html, /<tr class="diesel-row-highlight"><th scope="row">U\.S\.<\/th><td>5\.257<\/td><td>5\.454<\/td><td>5\.652<\/td><td>0\.198<\/td><td>1\.944<\/td><\/tr>/);
+    assert.match(html, /<tr class=""><th scope="row">Gulf Coast \(PADD3\)<\/th><td>5\.044<\/td><td>5\.237<\/td><td>5\.481<\/td><td>0\.244<\/td><td>2\.153<\/td><\/tr>/);
     assert.match(html, /href="https:\/\/www\.eia\.gov\/petroleum\/gasdiesel\/" target="_blank" rel="noopener noreferrer"/);
 
     const credentialsIndex = html.indexOf("Credentials you<br>can check yourself");
