@@ -53,6 +53,21 @@ describe("static site contract", () => {
     );
   });
 
+  it("renders the homepage hero lead copy in white for contrast", () => {
+    const html = read("index.html");
+    const css = read("assets/site.css");
+
+    assert.match(
+      html,
+      /<p class="lead">Daats Companies is a full-service trucking carrier out of Dallas, Texas - dry-van and refrigerated freight delivered safely and on time, from local runs to nationwide over-the-road\.<\/p>/,
+    );
+    assert.match(
+      css,
+      /\.hero\s+\.lead\s*\{[\s\S]*color:\s*#fff;/m,
+      "homepage hero lead copy should render in white",
+    );
+  });
+
   it("uses the official transparent Daats logo mark in the brand", () => {
     const html = read("index.html");
     assert.equal(existsSync(join(root, "assets", "images", "daats-logo-mark-transparent.png")), true);

@@ -480,6 +480,10 @@ h1 .accent {
   line-height: 1.45;
 }
 
+.hero .lead {
+  color: #fff;
+}
+
 .hero-actions,
 .cta-actions {
   display: flex;
