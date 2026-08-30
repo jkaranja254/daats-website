@@ -14,6 +14,7 @@ const requiredPages = [
   "coverage.html",
   "safety.html",
   "blog.html",
+  "blog/fall-freight-prep-before-peak-season.html",
   "blog/ai-in-trucking.html",
   "blog/diesel-record-highs-2026.html",
   "blog/broker-liability-carrier-vetting.html",
@@ -85,6 +86,7 @@ describe("static site contract", () => {
       "blog-ai-trucking.png",
       "blog-broker-vetting.png",
       "blog-diesel-prices.png",
+      "blog-fall-freight-prep.png",
     ]);
 
     for (const page of requiredPages.filter((page) => page.startsWith("blog/"))) {
@@ -110,6 +112,15 @@ describe("static site contract", () => {
       assert.ok(words.length >= 800, `${page} should be at least 4 minutes, got ${words.length} words`);
       assert.ok(words.length <= 1600, `${page} should be at most 8 minutes, got ${words.length} words`);
     }
+  });
+
+  it("renders the new August article with the expected metadata", () => {
+    const html = read("blog/fall-freight-prep-before-peak-season.html");
+
+    assert.match(html, /<p class="meta category">Industry News<\/p>/);
+    assert.match(html, /<h1>How Shippers Should Prepare for Fall Freight Before Peak Season Hits<\/h1>/);
+    assert.match(html, /<p class="meta">AUG 30, 2026 - 4 MIN READ<\/p>/);
+    assert.match(html, /<div class="container article-hero-image"><img src="\.\.\/assets\/images\/blog-fall-freight-prep\.png"/);
   });
 
   it("applies the Daats maroon hover treatment to links and elevates cards site-wide", () => {
