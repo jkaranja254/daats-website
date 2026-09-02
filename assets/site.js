@@ -1,3 +1,14 @@
+updateYearsInService();
+
+function updateYearsInService(yearOrDate = new Date()) {
+  const currentYear = yearOrDate instanceof Date ? yearOrDate.getFullYear() : yearOrDate;
+  const yearsInService = String(currentYear - 2007);
+
+  document.querySelectorAll("[data-years-in-service]").forEach((node) => {
+    node.textContent = yearsInService;
+  });
+}
+
 const toggle = document.querySelector("[data-nav-toggle]");
 const nav = document.querySelector("[data-nav]");
 

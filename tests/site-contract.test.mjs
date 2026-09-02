@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { runInNewContext } from "node:vm";
 
 const root = process.cwd();
 const read = (path) => readFileSync(join(root, path), "utf8");
@@ -43,12 +44,18 @@ describe("static site contract", () => {
       );
       assert.doesNotMatch(html, /1724142/, `${page} should not publish USDOT 1724142`);
       assert.doesNotMatch(html, /631896/, `${page} should not publish MC 631896`);
+      assert.doesNotMatch(
+        html,
+        /2665 Villa Creek/i,
+        `${page} should not include the old Villa Creek address`,
+      );
     }
   });
 
-  it("derives 19 years in service in 2026 and emphasizes the diesel release date", () => {
+  it("generates current years-in-service fallbacks across pages and emphasizes the diesel release date", () => {
     const buildScript = read("scripts/build-site.mjs");
-    const html = read("index.html");
+    const homeHtml = read("index.html");
+    const safetyHtml = read("safety.html");
     const expectedYearsInService = new Date().getFullYear() - 2007;
 
     assert.match(buildScript, /const\s+foundingYear\s*=\s*2007;/);
@@ -56,26 +63,60 @@ describe("static site contract", () => {
       buildScript,
       /const\s+yearsInService\s*=\s*new Date\(\)\.getFullYear\(\)\s*-\s*foundingYear;/,
     );
-    assert.match(
-      buildScript,
-      /In business since [^"'`\r\n]*over \$\{yearsInService\} years moving freight\./,
+    assert.deepEqual(
+      [...homeHtml.matchAll(/<span data-years-in-service>([^<]+)<\/span>/g)].map(
+        (match) => match[1],
+      ),
+      [String(expectedYearsInService), String(expectedYearsInService)],
+      "homepage should contain exactly two current-year fallbacks",
+    );
+    assert.deepEqual(
+      [...safetyHtml.matchAll(/<span data-years-in-service>([^<]+)<\/span>/g)].map(
+        (match) => match[1],
+      ),
+      [String(expectedYearsInService)],
+      "Safety page should contain exactly one current-year fallback",
     );
     assert.match(
-      buildScript,
-      /Over \$\{yearsInService\} years of moving freight has taught us/,
+      homeHtml,
+      new RegExp(`Over <span data-years-in-service>${expectedYearsInService}</span> years of moving freight`),
     );
     assert.match(
-      html,
-      new RegExp(`Over ${expectedYearsInService} years of moving freight`),
+      safetyHtml,
+      new RegExp(`over <span data-years-in-service>${expectedYearsInService}</span> years moving freight`),
     );
 
-    const dieselSource = html.match(/<p class="diesel-source">[\s\S]*?<\/p>/);
+    const dieselSource = homeHtml.match(/<p class="diesel-source">[\s\S]*?<\/p>/);
     assert.ok(dieselSource, "homepage should include the diesel source line");
     assert.match(
       dieselSource[0],
       /<a\b[^>]*>U\.S\. Energy Information Administration<\/a>/,
     );
     assert.doesNotMatch(dieselSource[0], /\(August 25, 2026\)/);
+  });
+
+  it("updates every years-in-service marker for the current calendar year", () => {
+    const markers = [{ textContent: "19" }, { textContent: "19" }];
+    const selected = [];
+    const context = {
+      document: {
+        querySelector: () => null,
+        querySelectorAll: (selector) => {
+          selected.push(selector);
+          return markers;
+        },
+      },
+    };
+
+    runInNewContext(read("assets/site.js"), context);
+
+    assert.equal(typeof context.updateYearsInService, "function");
+    context.updateYearsInService(2030);
+    assert.deepEqual(selected, ["[data-years-in-service]", "[data-years-in-service]"]);
+    assert.deepEqual(
+      markers.map((marker) => marker.textContent),
+      ["23", "23"],
+    );
   });
 
   it("labels the driver application link as Apply and opens it in a new tab", () => {
