@@ -27,6 +27,57 @@ describe("static site contract", () => {
     }
   });
 
+  it("uses the new office and mailing addresses without publishing DOT or MC numbers", () => {
+    for (const page of requiredPages) {
+      const html = read(page);
+
+      assert.match(
+        html,
+        /Office:<br>4001 McEwen Rd Suite 404<br>Dallas, TX 75244/,
+        `${page} should include the new office address`,
+      );
+      assert.match(
+        html,
+        /Mailing:<br>6841 Virginia Pkwy<br>Suite 103-402<br>McKinney, TX 75071/,
+        `${page} should include the new mailing address`,
+      );
+      assert.doesNotMatch(html, /1724142/, `${page} should not publish USDOT 1724142`);
+      assert.doesNotMatch(html, /631896/, `${page} should not publish MC 631896`);
+    }
+  });
+
+  it("derives 19 years in service in 2026 and emphasizes the diesel release date", () => {
+    const buildScript = read("scripts/build-site.mjs");
+    const html = read("index.html");
+    const expectedYearsInService = new Date().getFullYear() - 2007;
+
+    assert.match(buildScript, /const\s+foundingYear\s*=\s*2007;/);
+    assert.match(
+      buildScript,
+      /const\s+yearsInService\s*=\s*new Date\(\)\.getFullYear\(\)\s*-\s*foundingYear;/,
+    );
+    assert.match(
+      buildScript,
+      /In business since [^"'`\r\n]*over \$\{yearsInService\} years moving freight\./,
+    );
+    assert.match(
+      buildScript,
+      /Over \$\{yearsInService\} years of moving freight has taught us/,
+    );
+    assert.match(
+      html,
+      new RegExp(`Over ${expectedYearsInService} years of moving freight`),
+    );
+
+    const dieselSource = html.match(/<p class="diesel-source">[\s\S]*?<\/p>/);
+    assert.ok(dieselSource, "homepage should include the diesel source line");
+    assert.match(
+      dieselSource[0],
+      /<a\b[^>]*>U\.S\. Energy Information Administration<\/a>/,
+    );
+    assert.doesNotMatch(dieselSource[0], /\(August 25, 2026\)/);
+  });
+
   it("labels the driver application link as Apply and opens it in a new tab", () => {
     const html = read("index.html");
     assert.match(
@@ -218,7 +269,7 @@ describe("static site contract", () => {
 
     assert.match(html, /<section class="section diesel-section" id="diesel-prices">/);
     assert.match(html, /<h2>Weekly diesel prices<\/h2>/);
-    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: August 25, 2026 \| Next Release Date: September 1, 2026<\/p><\/div>/);
+    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: <strong>August 25, 2026<\/strong> \| Next Release Date: September 1, 2026<\/p><\/div>/);
     assert.doesNotMatch(html, /EIA weekly benchmark snapshot/);
     assert.doesNotMatch(html, /U\.S\. On-Highway Diesel Fuel Prices\*\s*\(dollars per gallon\)/);
     assert.doesNotMatch(html, /diesel-release-badges/);
