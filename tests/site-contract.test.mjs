@@ -310,13 +310,33 @@ describe("static site contract", () => {
 
     assert.match(html, /<section class="section diesel-section" id="diesel-prices">/);
     assert.match(html, /<h2>Weekly diesel prices<\/h2>/);
-    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: <strong>August 25, 2026<\/strong> \| Next Release Date: September 1, 2026<\/p><\/div>/);
+    assert.match(html, /<div class="diesel-topbar"><h3>Diesel Fuel Price<\/h3><p class="diesel-release-line">Diesel Fuel Release Date: <strong>September 1, 2026<\/strong> \| Next Release Date: September 9, 2026<\/p><\/div>/);
     assert.doesNotMatch(html, /EIA weekly benchmark snapshot/);
     assert.doesNotMatch(html, /U\.S\. On-Highway Diesel Fuel Prices\*\s*\(dollars per gallon\)/);
     assert.doesNotMatch(html, /diesel-release-badges/);
-    assert.match(html, /<th>Region<\/th><th>08\/10\/26<\/th><th>08\/17\/26<\/th><th>08\/24\/26<\/th><th>Week Ago<\/th><th>Year Ago<\/th>/);
-    assert.match(html, /<tr class="diesel-row-highlight"><th scope="row">U\.S\.<\/th><td>5\.257<\/td><td>5\.454<\/td><td>5\.652<\/td><td>0\.198<\/td><td>1\.944<\/td><\/tr>/);
-    assert.match(html, /<tr class=""><th scope="row">Gulf Coast \(PADD3\)<\/th><td>5\.044<\/td><td>5\.237<\/td><td>5\.481<\/td><td>0\.244<\/td><td>2\.153<\/td><\/tr>/);
+    assert.match(html, /<th>Region<\/th><th>08\/17\/26<\/th><th>08\/24\/26<\/th><th>08\/31\/26<\/th><th>Week Ago<\/th><th>Year Ago<\/th>/);
+
+    const expectedRows = [
+      ["U.S.", "5.454", "5.652", "5.599", "-0.053", "1.865"],
+      ["East Coast (PADD1)", "5.340", "5.498", "5.448", "-0.050", "1.698"],
+      ["New England (PADD1A)", "5.545", "5.716", "5.736", "0.020", "1.788"],
+      ["Central Atlantic (PADD1B)", "5.652", "5.840", "5.838", "-0.002", "1.926"],
+      ["Lower Atlantic (PADD1C)", "5.204", "5.350", "5.276", "-0.074", "1.607"],
+      ["Midwest (PADD2)", "5.435", "5.636", "5.571", "-0.065", "1.849"],
+      ["Gulf Coast (PADD3)", "5.237", "5.481", "5.360", "-0.121", "1.993"],
+      ["Rocky Mountain (PADD4)", "5.427", "5.537", "5.555", "0.018", "1.802"],
+      ["West Coast (PADD5)", "6.203", "6.407", "6.497", "0.090", "2.013"],
+      ["West Coast less California", "5.699", "5.859", "5.872", "0.013", "1.760"],
+      ["California", "6.785", "7.040", "7.218", "0.178", "2.304"],
+    ];
+
+    for (const [region, ...values] of expectedRows) {
+      const cells = values.map((value) => `<td>${value}</td>`).join("");
+      assert.ok(
+        html.includes(`<th scope="row">${region}</th>${cells}`),
+        `${region} should use the September 1 EIA figures`,
+      );
+    }
     assert.match(html, /href="https:\/\/www\.eia\.gov\/petroleum\/gasdiesel\/" target="_blank" rel="noopener noreferrer"/);
 
     const credentialsIndex = html.indexOf("Credentials you<br>can check yourself");
